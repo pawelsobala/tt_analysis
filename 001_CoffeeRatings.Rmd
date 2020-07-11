@@ -14,14 +14,9 @@ library(tidyverse)
 theme_set(theme_light())
 ```
 
-Get the Data
+# Get the Data
 
-Read in with tidytuesdayR package
-Install from CRAN via: install.packages("tidytuesdayR")
-This loads the readme and all the datasets for the week of interest
-
-Either ISO-8601 date or year/week works!
-
+Script from David Robinson's screencast on [YouTube](https://www.youtube.com/watch?v=-1x8Kpyndss).
 
 
 ```{r}
@@ -209,3 +204,25 @@ coffee_metrics %>%
        x="Each kilometer of altitude contributes this much to score (95% confidence interval)") 
 ```
 
+# Main takeaways
+
+* Using `fct_reorder()`{.r} and `fct_lump()`{.r}  to order and filter variables when plotting
+* Following method to get mean of all variables `data_set %>% summarize(across(everything(),~mean(!is.na(.))))`{.r}
+* Library `ggridges`{.r} with an awesome function `geom_density_ridges()`{.r}
+* Library `widyr`{.r} to calculate correlations in a tidy fashion
+* 'ggpraph'{.r} package to plot dependency structures between correlations. However, the syntax seems to be counterintuitive.
+* Function `widely_svd()`{.r} to perform PCA.
+* Function `geom_errorbarh()`{.r} to plot the error of an estimation.
+
+```{r}
+correlations <- coffee_metrics %>% 
+  pairwise_cor(metric, coffee_id, value, sort=TRUE) 
+  
+correlations %>% 
+  head(50) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha=correlation))+
+  geom_node_point()+
+  geom_node_text(aes(label=name), repel=TRUE)
+```
